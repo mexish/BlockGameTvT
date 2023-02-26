@@ -1,0 +1,16 @@
+[
+{
+  "modid": "forgetemplate",
+  "name": "ForgeTemplate",
+  "description": "Example placeholder mod.",
+  "version": "1.0",
+  "mcversion": "1.8.9",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Someone"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
