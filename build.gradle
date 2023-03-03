@@ -18,9 +18,18 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 version = "1.0"
-group= "com.someone.forgetemplate" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "modid" // the archive(jar)'s name
+group= "me.mexish.blockgametvt" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "blockgametvt" // the archive(jar)'s name
 
+
+// Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = '1.8'
+compileJava {
+    // This ensures that the generated class files will be compatible with JVMs specified by targetCompatibility.
+    sourceCompatibility = targetCompatibility = '1.8'
+    // Makes it so u don't need to convert unicode to basic latin for it to be able to build/run.
+    options.encoding 'UTF-8'
+}
 repositories {
     // The mavenCentral() alias means that dependencies are fetched from the central Maven 2 repository (https://repo1.maven.org/maven2).
     mavenCentral()
@@ -64,4 +73,8 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
+}
+
+dependencies {
+    implementation 'org.projectlombok:lombok:1.18.22'
 }
