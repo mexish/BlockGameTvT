@@ -38,6 +38,8 @@ public class RandomTeamCommand extends Command {
     @Getter static Map<String, Integer> playerIds = new HashMap<>();
 
     Collection<PlayerProcessingRecord> processing = Collections.synchronizedCollection(new HashSet<>());
+    @Getter static Map<String, Integer> teamRedMap = new HashMap<>();
+    @Getter static Map<String, Integer> teamBlueMap = new HashMap<>();
 
     @Getter static int playerAmount;
     String redTeamMembers;
@@ -61,7 +63,12 @@ public class RandomTeamCommand extends Command {
         if (args.length == 1) {
             if (args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("cl")) {
                 playerIds.clear();
-                ChatUtil.base("Cleared all ids!");
+                teamRedMap.clear();
+                teamBlueMap.clear();
+                redTeamMembers = "";
+                blueTeamMembers = "";
+                playerAmount = 0;
+                ChatUtil.base("Cleared all ids and reset player amount.");
                 return;
             }
 
@@ -69,14 +76,14 @@ public class RandomTeamCommand extends Command {
                 if (!playerIds.isEmpty()) {
                     ChatUtil.base("Team §cRed: §3" + redTeamMembers);
                 } else {
-                    ChatUtil.base("§cThe player ID list is empty!");
+                    ChatUtil.error(3);
                 }
             }
             if (args[0].equalsIgnoreCase("b") || args[0].equalsIgnoreCase("blue")) {
                 if (!playerIds.isEmpty()) {
                     ChatUtil.base("Team §1Blue: §3" + blueTeamMembers);
                 } else {
-                    ChatUtil.base("§cThe player ID list is empty!");
+                    ChatUtil.error(3);
                 }
 
             }
@@ -85,7 +92,7 @@ public class RandomTeamCommand extends Command {
             try {
                 playerAmount = Integer.parseInt(args[0]);
             } catch (NumberFormatException ex) {
-                ChatUtil.base("§4Wrong usage! The argument must be an Integer! Example: /randomteam 10");
+                ChatUtil.error(1);
                 return;
             }
 
@@ -136,8 +143,7 @@ public class RandomTeamCommand extends Command {
                     sortedIdMap.put(entry.getKey(), entry.getValue());
                 }
 
-                Map<String, Integer> teamRedMap = new HashMap<>();
-                Map<String, Integer> teamBlueMap = new HashMap<>();
+
 
                 for (Map.Entry<String, Integer> entry : sortedIdMap.entrySet()) {
                     String name = entry.getKey();
@@ -158,7 +164,7 @@ public class RandomTeamCommand extends Command {
                 blueTeamMembers = String.join(", ", teamBlueMap.keySet());
 
                 ChatComponentText btnText = new ChatComponentText("§bCLICK");
-                ChatComponentText btnHoverText = new ChatComponentText("Copy team members");
+                ChatComponentText btnHoverText = new ChatComponentText("Send team members in the pchat and copy");
 
                 ChatComponentTranslation buttonRed = new ChatComponentTranslation("chat.type.announcement", btnText);
                 ChatComponentTranslation buttonBlue = new ChatComponentTranslation("chat.type.announcement", btnText);
@@ -176,8 +182,8 @@ public class RandomTeamCommand extends Command {
                 finalComponent2.appendSibling(finalComponentText2);
                 finalComponent2.appendSibling(buttonBlue);
 
-                buttonRed.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pc " + redTeamMembers));
-                buttonBlue.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/pc " + blueTeamMembers));
+                buttonRed.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bac invoke red"));
+                buttonBlue.getChatStyle().setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/bac invoke blue"));
 
                 sender.addChatMessage(finalComponent1);
                 sender.addChatMessage(finalComponent2);

@@ -1,6 +1,7 @@
 package me.mexish.blockgametvt;
 
 import me.mexish.blockgametvt.command.Command;
+import me.mexish.blockgametvt.command.impl.ButtonActionCommand;
 import me.mexish.blockgametvt.command.impl.RandomTeamCommand;
 import me.mexish.blockgametvt.command.impl.TestCommand;
 import me.mexish.blockgametvt.util.ChatUtil;
@@ -37,5 +38,6 @@ public class BlockGameTvT
     public void registerCommands() {
         new TestCommand();
         new RandomTeamCommand();
+        new ButtonActionCommand();
     }
 }
