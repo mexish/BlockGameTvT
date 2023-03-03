@@ -10,15 +10,7 @@ import java.util.Random;
  * */
 public class NumberUtil {
 
-    public static int generateRandomPlayerId(int limit) {
-        int randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
-        while (RandomTeamCommand.getContainsPlayerId(randomPlayerId)) {
-            randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
-        }
 
-
-        return randomPlayerId;
-    }
 
 
 }

@@ -41,7 +41,7 @@ public class RandomTeamCommand extends Command {
     @Getter static Map<String, Integer> teamRedMap = new HashMap<>();
     @Getter static Map<String, Integer> teamBlueMap = new HashMap<>();
 
-    @Getter static int playerAmount;
+    @Getter static float playerAmount;
     String redTeamMembers;
     String blueTeamMembers;
 
@@ -107,22 +107,22 @@ public class RandomTeamCommand extends Command {
                     continue;
                 }
                 if (playerIds.size() == 12) {
-                    return;
+                    break;
                 }
 
                 if (isPlayerListFull()) {
                     //ChatUtil.base("Player list full!");
-                    return;
+                    break;
                 }
                 if (!PlayerUtil.isPlayerInGame()) {
-                    return;
+                    break;
                 }
 
                 try {
                     processing.add(new PlayerProcessingRecord(Executors.newFixedThreadPool(1).submit(() -> {
                         if (!playerIds.containsKey(ent.getName())) {
-                            //ChatUtil.base("Assigning random team to player: " + ent.getName());
-                            int playerId = NumberUtil.generateRandomPlayerId(playerAmount);
+                            ChatUtil.base("Assigning random team to player: " + ent.getName());
+                            int playerId = generateRandomPlayerId((int) playerAmount);
                             playerIds.put(ent.getName(), playerId);
                             //ChatUtil.base("Assigned id §0" + playerId + "§7: " + ent.getName());
 
@@ -139,6 +139,7 @@ public class RandomTeamCommand extends Command {
 
                 Map<String, Integer> sortedIdMap = new LinkedHashMap<>();
 
+
                 for (Map.Entry<String, Integer> entry : entryList) {
                     sortedIdMap.put(entry.getKey(), entry.getValue());
                 }
@@ -148,14 +149,15 @@ public class RandomTeamCommand extends Command {
                 for (Map.Entry<String, Integer> entry : sortedIdMap.entrySet()) {
                     String name = entry.getKey();
                     int id = entry.getValue();
+                    int roundedPlayerAmountPerTeam = Math.round(playerAmount / 2);
 
-                    if (id >= 1 && id <= Math.round(playerAmount) / 2) {
-                        if (!(teamRedMap.size() > Math.round(playerAmount) / 2)) {
+                    if (id >= 1 && id <= roundedPlayerAmountPerTeam) {
+                        if (!(teamRedMap.size() > roundedPlayerAmountPerTeam)) {
                             teamRedMap.put(name, id);
                         }
 
-                    } else if (id >= Math.round(playerAmount) / 2 + 1 && id <= playerAmount) {
-                        if (!(teamBlueMap.size() > Math.round(playerAmount) / 2)) {
+                    } else if (id >= roundedPlayerAmountPerTeam + 1 && id <= playerAmount) {
+                        if (!(teamBlueMap.size() > roundedPlayerAmountPerTeam)) {
                             teamBlueMap.put(name, id);
                         }
                     }
@@ -228,39 +230,10 @@ public class RandomTeamCommand extends Command {
                     if (en.getName().startsWith("§c")) {
                         return true;
                     } else {
-
                         String n = en.getDisplayName().getUnformattedText();
                         String na = en.getName();
                         if (n.contains("§") || na.contains("Grim Reaper")) {
                             return n.contains("[NPC] ");
-                        } else {
-                            if (n.isEmpty() && en.getName().isEmpty()) {
-                                return true;
-                            }
-
-                            if (n.length() == 10) {
-                                int num = 0;
-                                int let = 0;
-                                char[] var4 = n.toCharArray();
-
-                                for (char c : var4) {
-                                    if (Character.isLetter(c)) {
-                                        if (Character.isUpperCase(c)) {
-                                            return false;
-                                        }
-
-                                        ++let;
-                                    } else {
-                                        if (!Character.isDigit(c)) {
-                                            return false;
-                                        }
-
-                                        ++num;
-                                    }
-                                }
-
-                                return num >= 2 && let >= 2;
-                            }
                         }
                     }
                 }
@@ -272,6 +245,17 @@ public class RandomTeamCommand extends Command {
 
 
         return false;
+    }
+
+    public static int generateRandomPlayerId(int limit) {
+        int randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
+        if (!isPlayerListFull()) {
+            while (RandomTeamCommand.getContainsPlayerId(randomPlayerId)) {
+                randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
+            }
+        }
+
+        return randomPlayerId;
     }
 
 
