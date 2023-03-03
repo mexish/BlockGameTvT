@@ -19,8 +19,6 @@ import java.util.concurrent.Future;
 @Data
 public final class PlayerProcessingRecord {
 
-    UUID playerUniqueId;
-    long startTimestamp;
     Future<?> executionId;
 
 }

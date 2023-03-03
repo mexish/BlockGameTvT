@@ -119,7 +119,7 @@ public class RandomTeamCommand extends Command {
                 }
 
                 try {
-                    processing.add(new PlayerProcessingRecord(ent.getUniqueID(), System.currentTimeMillis(), Executors.newFixedThreadPool(1).submit(() -> {
+                    processing.add(new PlayerProcessingRecord(Executors.newFixedThreadPool(1).submit(() -> {
                         if (!playerIds.containsKey(ent.getName())) {
                             //ChatUtil.base("Assigning random team to player: " + ent.getName());
                             int playerId = NumberUtil.generateRandomPlayerId(playerAmount);
@@ -155,7 +155,7 @@ public class RandomTeamCommand extends Command {
                         }
 
                     } else if (id >= Math.round(playerAmount) / 2 + 1 && id <= playerAmount) {
-                        if (!(teamRedMap.size() > Math.round(playerAmount) / 2)) {
+                        if (!(teamBlueMap.size() > Math.round(playerAmount) / 2)) {
                             teamBlueMap.put(name, id);
                         }
                     }
