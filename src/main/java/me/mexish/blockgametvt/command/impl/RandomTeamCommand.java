@@ -1,14 +1,10 @@
 package me.mexish.blockgametvt.command.impl;
 
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.val;
-import me.mexish.blockgametvt.BlockGameTvT;
 import me.mexish.blockgametvt.command.Command;
 import me.mexish.blockgametvt.type.PlayerProcessingRecord;
 import me.mexish.blockgametvt.util.ChatUtil;
-import me.mexish.blockgametvt.util.NumberUtil;
-import me.mexish.blockgametvt.util.PlayerUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.Entity;
@@ -19,7 +15,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.common.MinecraftForge;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -65,6 +60,7 @@ public class RandomTeamCommand extends Command {
                 playerIds.clear();
                 teamRedMap.clear();
                 teamBlueMap.clear();
+                processing.clear();
                 redTeamMembers = "";
                 blueTeamMembers = "";
                 playerAmount = 0;
@@ -99,41 +95,39 @@ public class RandomTeamCommand extends Command {
             for (val ent : Minecraft.getMinecraft().theWorld.getEntities(EntityPlayer.class, ($) -> true)) {
                 //ChatUtil.base("Break 1");
                 val isBot = bot(ent);
-                if (ent.getName() != null) {
+                //if (ent.getName() != null) {
                     //ChatUtil.debug(ent.getName() + (isBot ? " - BOT" : ""));
-                }
+                //}
 
                 if (isBot) {
+                    //ChatUtil.base("Break bot");
                     continue;
                 }
-                if (playerIds.size() == 12) {
-                    break;
+
+                if (playerIds.containsKey(ent.getName())) {
+                    //ChatUtil.base("Break contains key");
+                    continue;
                 }
 
-                if (isPlayerListFull()) {
+                if (isPlayerListFull() || !(playerIds.size() == 12)) {
                     //ChatUtil.base("Player list full!");
-                    break;
-                }
-                if (!PlayerUtil.isPlayerInGame()) {
-                    break;
-                }
-
-                try {
-                    processing.add(new PlayerProcessingRecord(Executors.newFixedThreadPool(1).submit(() -> {
-                        if (!playerIds.containsKey(ent.getName())) {
-                            ChatUtil.base("Assigning random team to player: " + ent.getName());
+                    try {
+                        ChatUtil.base("Break 2");
+                        processing.add(new PlayerProcessingRecord(Executors.newFixedThreadPool(1).submit(() -> {
+                            ChatUtil.base("Break 2.1");
+                            //ChatUtil.base("Assigning random team to player: " + ent.getName());
                             int playerId = generateRandomPlayerId((int) playerAmount);
                             playerIds.put(ent.getName(), playerId);
                             //ChatUtil.base("Assigned id §0" + playerId + "§7: " + ent.getName());
-
-                        }
-                    })));
-                } catch (Throwable t) {
-                    t.printStackTrace();
+                        })));
+                    } catch (Throwable t) {
+                        t.printStackTrace();
+                    }
+                    processing.clear();
                 }
-
             }
             if (!playerIds.isEmpty()) {
+                ChatUtil.base("Break 3");
                 List<Map.Entry<String, Integer>> entryList = new ArrayList<>(playerIds.entrySet());
                 entryList.sort(Map.Entry.comparingByValue());
 
@@ -141,12 +135,14 @@ public class RandomTeamCommand extends Command {
 
 
                 for (Map.Entry<String, Integer> entry : entryList) {
+                    ChatUtil.base("Break 4");
                     sortedIdMap.put(entry.getKey(), entry.getValue());
                 }
 
 
 
                 for (Map.Entry<String, Integer> entry : sortedIdMap.entrySet()) {
+                    ChatUtil.base("Break 5");
                     String name = entry.getKey();
                     int id = entry.getValue();
                     int roundedPlayerAmountPerTeam = Math.round(playerAmount / 2);
@@ -234,7 +230,36 @@ public class RandomTeamCommand extends Command {
                         String na = en.getName();
                         if (n.contains("§") || na.contains("Grim Reaper")) {
                             return n.contains("[NPC] ");
+                        } else {
+                            if (n.isEmpty() && en.getName().isEmpty()) {
+                                return true;
+                            }
+                            if (n.length() == 10) {
+                                int num = 0;
+                                int let = 0;
+                                char[] var4 = n.toCharArray();
+
+                                for (char c : var4) {
+                                    if (Character.isLetter(c)) {
+                                        if (Character.isUpperCase(c)) {
+                                            return false;
+                                        }
+
+                                        ++let;
+                                    } else {
+                                        if (!Character.isDigit(c)) {
+                                            return false;
+                                        }
+
+                                        ++num;
+                                    }
+                                }
+
+                                return num >= 2 && let >= 2;
+                            }
                         }
+
+
                     }
                 }
             }
@@ -249,7 +274,7 @@ public class RandomTeamCommand extends Command {
 
     public static int generateRandomPlayerId(int limit) {
         int randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
-        if (!isPlayerListFull()) {
+        if (isPlayerListFull()) {
             while (RandomTeamCommand.getContainsPlayerId(randomPlayerId)) {
                 randomPlayerId = (int) ((Math.random() * (limit - 1)) + 1);
             }
