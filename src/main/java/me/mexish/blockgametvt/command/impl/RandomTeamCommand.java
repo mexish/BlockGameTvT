@@ -93,23 +93,23 @@ public class RandomTeamCommand extends Command {
             }
 
             for (val ent : Minecraft.getMinecraft().theWorld.getEntities(EntityPlayer.class, ($) -> true)) {
-                //ChatUtil.base("Break 1");
+                ChatUtil.base("Break 1");
                 val isBot = bot(ent);
                 //if (ent.getName() != null) {
                     //ChatUtil.debug(ent.getName() + (isBot ? " - BOT" : ""));
                 //}
 
                 if (isBot) {
-                    //ChatUtil.base("Break bot");
+                    ChatUtil.base("Break bot");
                     continue;
                 }
 
                 if (playerIds.containsKey(ent.getName())) {
-                    //ChatUtil.base("Break contains key");
+                    ChatUtil.base("Break contains key");
                     continue;
                 }
 
-                if (isPlayerListFull() || !(playerIds.size() == 12)) {
+                if (!isPlayerListFull()) {
                     //ChatUtil.base("Player list full!");
                     try {
                         ChatUtil.base("Break 2");
@@ -208,66 +208,62 @@ public class RandomTeamCommand extends Command {
     }
 
     public static boolean bot(Entity en) {
-        if (en.getName().equalsIgnoreCase("\\247r")) {
-            return true;
+        if (Pattern.compile("\\w{3,16}").matcher(en.getName()).matches()
+                && Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()
+                .stream()
+                .anyMatch($pl ->
+                        $pl.getDisplayName() != null
+                                && $pl.getDisplayName().toString().contains(en.getName())
+                )) {
+            return false;
         } else {
-            if (en.getName().contains("\\247c")) {
+            if (en.getName().equalsIgnoreCase("\\247r")) {
                 return true;
             } else {
-                if (Pattern.compile("\\w{3,16}").matcher(en.getName()).matches()
-                        && Minecraft.getMinecraft().getNetHandler().getPlayerInfoMap()
-                        .stream()
-                        .anyMatch($pl ->
-                                $pl.getDisplayName() != null
-                                        && $pl.getDisplayName().toString().contains(en.getName())
-                        )) {
-                    return false;
+                if (en.getName().contains("\\247c")
+                        || en.getDisplayName().getUnformattedText().contains("§c")
+                        || en.getName().contains("§c")
+                        || en.getDisplayName().getUnformattedText().startsWith("§c")
+                        || en.getDisplayName().getUnformattedText().startsWith("§f")
+                        || en.getDisplayName().getUnformattedText().contains("Grim Reaper")) {
+                    return true;
                 } else {
-                    if (en.getName().startsWith("§c")) {
-                        return true;
+                    String n = en.getDisplayName().getUnformattedText();
+                    String na = en.getName();
+                    if (n.contains("§") || na.contains("Grim Reaper")) {
+                        return n.contains("[NPC] ");
                     } else {
-                        String n = en.getDisplayName().getUnformattedText();
-                        String na = en.getName();
-                        if (n.contains("§") || na.contains("Grim Reaper")) {
-                            return n.contains("[NPC] ");
-                        } else {
-                            if (n.isEmpty() && en.getName().isEmpty()) {
-                                return true;
-                            }
-                            if (n.length() == 10) {
-                                int num = 0;
-                                int let = 0;
-                                char[] var4 = n.toCharArray();
-
-                                for (char c : var4) {
-                                    if (Character.isLetter(c)) {
-                                        if (Character.isUpperCase(c)) {
-                                            return false;
-                                        }
-
-                                        ++let;
-                                    } else {
-                                        if (!Character.isDigit(c)) {
-                                            return false;
-                                        }
-
-                                        ++num;
-                                    }
-                                }
-
-                                return num >= 2 && let >= 2;
-                            }
+                        if (n.isEmpty() && en.getName().isEmpty()) {
+                            return true;
                         }
+                        if (n.length() == 10) {
+                            int num = 0;
+                            int let = 0;
+                            char[] var4 = n.toCharArray();
 
+                            for (char c : var4) {
+                                if (Character.isLetter(c)) {
+                                    if (Character.isUpperCase(c)) {
+                                        return false;
+                                    }
 
+                                    ++let;
+                                } else {
+                                    if (!Character.isDigit(c)) {
+                                        return false;
+                                    }
+
+                                    ++num;
+                                }
+                            }
+
+                            return num >= 2 && let >= 2;
+                        }
                     }
+
                 }
             }
-
-
         }
-
-
 
         return false;
     }
